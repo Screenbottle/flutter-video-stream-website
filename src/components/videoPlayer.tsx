@@ -1,40 +1,80 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 
 export default function VideoPlayer() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (!videoRef.current) return;
-
     const video = videoRef.current;
 
+    let hls: Hls | null = null;
+    const source = 'http://localhost:8080/hls/index/index.m3u8';
+
     if (Hls.isSupported()) {
-      const hls = new Hls({
+      hls = new Hls({
         maxBufferLength: 5,
         liveSyncDuration: 2,
         enableWorker: true,
         lowLatencyMode: true,
-        debug: true,
       });
-      console.log("HLS.js is supported");
-      hls.loadSource('http://127.0.0.1:8080/hls/index/index.m3u8');
+
+      hls.loadSource(source);
       hls.attachMedia(video);
+
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(() => {});
       });
 
-      return () => {
-        hls.destroy();
-      };
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        console.warn('HLS error:', data);
+        setIsPlaying(false);
+      });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Safari fallback
-      video.src = 'http://127.0.0.1:8080/hls/index/index.m3u8';
+      video.src = source;
       video.play().catch(() => {});
     }
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('ended', handlePause);
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('ended', handlePause);
+      if (hls) hls.destroy();
+    };
   }, []);
 
-  return <video ref={videoRef} controls autoPlay width={640} height={360} />;
+  return (
+    <div className="relative w-full aspect-video">
+      <video
+        ref={videoRef}
+        controls
+        autoPlay
+        className="w-full h-full object-cover rounded-xl"
+      />
+      <div
+        className={`absolute top-3 right-3 flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
+          isPlaying
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-700'
+        }`}
+      >
+        <div
+          className={`w-2 h-2 rounded-full ${
+            isPlaying ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+          }`}
+        />
+        {isPlaying ? 'Playing' : 'Offline'}
+      </div>
+    </div>
+  );
 }
