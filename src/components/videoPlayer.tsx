@@ -54,7 +54,7 @@ export default function VideoPlayer() {
   }, []);
 
   return (
-    <div className="relative w-full aspect-video">
+    <div className="relative w-full aspect-(--aspect-phone) max-h-[80vh]">
       <video
         ref={videoRef}
         controls
