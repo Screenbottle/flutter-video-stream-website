@@ -1,7 +1,3 @@
-"use client";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Video } from "lucide-react";
 import StreamDashboard from "@/components/dashboard";
 
 export default function HomePage() {
@@ -15,13 +11,6 @@ export default function HomePage() {
       </p>
 
       <div className="flex flex-col items-center gap-4 mt-4">
-        <Link href="/stream">
-          <Button size="lg" className="flex items-center gap-2">
-            <Video className="w-5 h-5" />
-            View Stream
-          </Button>
-        </Link>
-
         <StreamDashboard />
       </div>
     </div>

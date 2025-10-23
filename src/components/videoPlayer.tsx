@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 
-export default function VideoPlayer() {
+interface VideoPlayerProps {
+  streamName: string;
+}
+
+export default function VideoPlayer({ streamName }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -12,7 +16,7 @@ export default function VideoPlayer() {
     const video = videoRef.current;
 
     let hls: Hls | null = null;
-    const source = 'http://localhost:8080/hls/index/index.m3u8';
+    const source = `http://localhost:8080/hls/${streamName}/index.m3u8`;
 
     if (Hls.isSupported()) {
       hls = new Hls({

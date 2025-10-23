@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Video, Clock } from "lucide-react";
+import Link from "next/link";
 
 export default function StreamDashboard() {
     const [streams, setStreams] = useState<{ name: string; time: number }[]>([]);
@@ -35,9 +36,14 @@ export default function StreamDashboard() {
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 w-full max-w-4xl">
                     {streams.map((s) => (
-                        <Card key={s.name} className="shadow-md hover:shadow-lg transition">
+
+                        <Card className="shadow-md hover:shadow-lg transition" key={s.name}>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-lg font-semibold">{s.name}</CardTitle>
+                                <CardTitle className="text-lg font-semibold">
+                                    <Link href={`/stream?name=${encodeURIComponent(s.name)}`} key={s.name} className="no-underline">
+                                        {s.name}
+                                    </Link>
+                                </CardTitle>
                                 <Video className="text-emerald-500" size={20} />
                             </CardHeader>
                             <CardContent className="flex items-center gap-2 text-slate-600">
